@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Treeverse Slot MVP</title>
+  <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    body {
+      background: #0a0f1c;
+      color: white;
+      font-family: Arial;
+      text-align: center;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(5, 80px);
+      gap: 8px;
+      justify-content: center;
+      margin: 20px;
+    }
+    .cell {
+      width: 80px;
+      height: 80px;
+      background: #1c2333;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    button {
+      padding: 10px 20px;
+      font-size: 18px;
+      margin-top: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+<div id="root"></div>
+
+<script type="text/babel">
+
+const SYMBOLS = [
+  "leaf", "wood", "stone", "sap",
+  "relic", "blade", "beast", "guardian",
+  "wild", "scatter"
+];
+
+const ROWS = 3;
+const COLS = 5;
+
+function getRandomSymbol() {
+  return SYMBOLS[Math.floor(Math.random() * SYMBOLS.length)];
+}
+
+function generateGrid() {
+  return Array.from({ length: ROWS }, () =>
+    Array.from({ length: COLS }, () => getRandomSymbol())
+  );
+}
+
+function App() {
+  const [grid, setGrid] = React.useState(generateGrid());
+  const [spinning, setSpinning] = React.useState(false);
+  const [balance, setBalance] = React.useState(10000);
+  const [bet] = React.useState(50);
+  const [freeSpins, setFreeSpins] = React.useState(0);
+
+  const spin = () => {
+    if (spinning) return;
+
+    setSpinning(true);
+
+    setTimeout(() => {
+      const newGrid = generateGrid();
+      setGrid(newGrid);
+
+      const scatterCount = newGrid.flat().filter(s => s === "scatter").length;
+
+      // trigger bonus
+      if (scatterCount >= 6) {
+        setFreeSpins(6);
+      }
+
+      // basic win logic placeholder
+      const win = Math.floor(Math.random() * 100);
+      setBalance(prev => prev + win - bet);
+
+      setSpinning(false);
+    }, 600);
+  };
+
+  const spinFree = () => {
+    if (spinning || freeSpins <= 0) return;
+
+    setSpinning(true);
+
+    setTimeout(() => {
+      const newGrid = generateGrid();
+      setGrid(newGrid);
+
+      const scatterCount = newGrid.flat().filter(s => s === "scatter").length;
+
+      // extra spins rule
+      if (scatterCount >= 3) {
+        setFreeSpins(prev => prev + 1);
+      }
+
+      setFreeSpins(prev => prev - 1);
+
+      setSpinning(false);
+    }, 600);
+  };
+
+  return (
+    <div>
+      <h1>Treeverse Slot (MVP)</h1>
+
+      <p>Balance: {balance}</p>
+      <p>Bet: {bet}</p>
+      <p>Free Spins: {freeSpins}</p>
+
+      <div className="grid">
+        {grid.map((row, r) =>
+          row.map((cell, c) => (
+            <div key={r + "-" + c} className="cell">
+              {cell}
+            </div>
+          ))
+        )}
+      </div>
+
+      {freeSpins > 0 ? (
+        <button onClick={spinFree}>
+          {spinning ? "Spinning..." : "Free Spin"}
+        </button>
+      ) : (
+        <button onClick={spin}>
+          {spinning ? "Spinning..." : "Spin"}
+        </button>
+      )}
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<App />);
+
+</script>
+</body>
+</html>
