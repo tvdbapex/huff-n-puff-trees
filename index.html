@@ -1,107 +1,1170 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Treeverse Slot MVP</title>
-<script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=9u34_98eDcrlrphRenOWUsEmu3sSDTp0dkKWOwT0cRbUHXATpVgHJzwq15vsJ9XKtIbWZhpaM2TDERr8JMPxVtFkUyiXSeuk_gC2kEthtM82CIThJyiLyWozICDpB-Oo2AjKjRTy9QaPKAWYVXk3UP3YeAaJKXG4NlzwwO08Xk30-ThR28eOT8RJ_2pjUPaICRKc3T_jZVDbstZHT6u3uhXgdI216fFaXSvk86X_YvEjHiGnnROP1qjmmm4-KvK6QeQfvlO_yrydfz3efKSURw" charset="UTF-8"></script><script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-<script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-<script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-<style>
-body{background:#0a0f1c;color:white;font-family:Arial;text-align:center}
-.grid{display:grid;grid-template-columns:repeat(5,80px);gap:8px;justify-content:center;margin:20px}
-.cell{width:80px;height:80px;background:#1c2333;display:flex;align-items:center;justify-content:center;border-radius:8px}
-button{padding:10px 20px;font-size:16px;margin:5px;cursor:pointer}
-.modal{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center}
-.modal-inner{background:#111;padding:20px;border-radius:10px}
-</style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Treeverse Slot Prototype</title>
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=-C_0ZOiM8dd7dQw_uEgPCGk1CKAnrTALMENdWKyRT1I5eoXeOs_EW6SspalAbNDkCq37othUasqIsk0AwFt-JiUx6UpPAbhaNn1jie4V51HFt4AHxommD0wryxV5uEHF1xXDIejXqhxr6-mWajXczDFQrSYTc_gqEjfGqMu85KqjYvk3nPOsp8Ih4yjUdoMfPIefo6zErzzeKlxF8NKrW5o4WVMf93lHPWId7od-EOlIfWPqdo7oN-bDs1G74oGljkEZuQ7oYdhbKcScginPrw" charset="UTF-8"></script><script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    :root{
+      --bg:#081017;
+      --panel:#0f1b28;
+      --panel-2:#132436;
+      --line:#29445f;
+      --text:#ecf5ff;
+      --muted:#9fb5c7;
+      --accent:#7ce2b1;
+      --gold:#ffd76a;
+      --danger:#ff8f8f;
+      --frame1:#8d6a4f;
+      --frame2:#8b7355;
+      --frame3:#a8a8a8;
+      --shadow:0 12px 32px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      min-height:100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+      background:
+        radial-gradient(circle at top, #13263a 0%, #081017 45%),
+        linear-gradient(180deg,#081017,#0b1218);
+      color:var(--text);
+      display:flex;
+      justify-content:center;
+      padding:18px;
+    }
+    #root{width:min(1120px, 100%)}
+    .app{
+      display:grid;
+      gap:16px;
+    }
+    .topbar, .panel, .controls, .bonus-panel{
+      background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+    }
+    .topbar{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:12px;
+      padding:14px;
+    }
+    .stat{
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:16px;
+      padding:12px 14px;
+    }
+    .label{
+      font-size:12px;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--muted);
+      margin-bottom:6px;
+    }
+    .value{
+      font-size:24px;
+      font-weight:700;
+    }
+    .layout{
+      display:grid;
+      grid-template-columns: 1.4fr .9fr;
+      gap:16px;
+      align-items:start;
+    }
+    .panel{
+      padding:14px;
+    }
+    .machine-header{
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:12px;
+      gap:12px;
+    }
+    .title{
+      font-size:28px;
+      font-weight:800;
+      letter-spacing:.02em;
+    }
+    .subtitle{
+      color:var(--muted);
+      font-size:13px;
+    }
+    .machine{
+      border:1px solid rgba(255,255,255,.07);
+      background:#09131d;
+      border-radius:20px;
+      padding:14px;
+    }
+    .reels{
+      display:grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap:10px;
+    }
+    .reel{
+      display:grid;
+      grid-template-rows: repeat(3, 108px);
+      gap:10px;
+      position:relative;
+    }
+    .reel.spinning .cell{
+      animation: reelPulse .18s linear infinite alternate;
+    }
+    @keyframes reelPulse{
+      from{ transform: translateY(-4px); filter:brightness(1.0); }
+      to{ transform: translateY(4px); filter:brightness(1.08); }
+    }
+    .cell{
+      position:relative;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.08);
+      background:linear-gradient(180deg,#122131,#0d1824);
+      overflow:hidden;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+    }
+    .cell.win{
+      border-color:var(--gold);
+      box-shadow:0 0 0 2px rgba(255,215,106,.2) inset, 0 0 18px rgba(255,215,106,.2);
+      transform:scale(1.02);
+    }
+    .cell.frame::before{
+      content:"";
+      position:absolute;
+      inset:6px;
+      border-radius:12px;
+      border:3px dashed rgba(255,255,255,.18);
+      pointer-events:none;
+    }
+    .cell.frame.tier1::before{ border-color:var(--frame1); }
+    .cell.frame.tier2::before{ border-color:var(--frame2); }
+    .cell.frame.tier3::before{ border-color:var(--frame3); }
+    .cell.scatter-on-frame{
+      box-shadow:0 0 0 2px rgba(124,226,177,.24) inset, 0 0 16px rgba(124,226,177,.18);
+    }
+    .symbol{
+      width:84%;
+      height:84%;
+      border-radius:14px;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      text-align:center;
+      padding:8px;
+      font-weight:700;
+      font-size:14px;
+      line-height:1.1;
+      letter-spacing:.02em;
+      color:#fff;
+      border:1px solid rgba(255,255,255,.06);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.07);
+    }
+    .low{ background:linear-gradient(180deg,#3c5570,#24374a); }
+    .premium{ background:linear-gradient(180deg,#5f6f99,#35456e); }
+    .wild{ background:linear-gradient(180deg,#9472ff,#5b3ddb); }
+    .scatter{ background:linear-gradient(180deg,#d39257,#8f5524); }
+    .empty{ background:transparent; border:none; box-shadow:none; color:transparent; }
+    .cell-tag{
+      position:absolute;
+      top:7px;
+      right:8px;
+      font-size:10px;
+      color:#d7e4f0;
+      background:rgba(0,0,0,.28);
+      border:1px solid rgba(255,255,255,.08);
+      border-radius:999px;
+      padding:2px 6px;
+    }
+    .controls{
+      padding:14px;
+      display:grid;
+      gap:12px;
+    }
+    .controls-row{
+      display:flex;
+      gap:10px;
+      flex-wrap:wrap;
+    }
+    button{
+      appearance:none;
+      border:none;
+      cursor:pointer;
+      border-radius:14px;
+      padding:12px 16px;
+      font-size:15px;
+      font-weight:700;
+      transition:transform .14s ease, opacity .14s ease, filter .14s ease;
+    }
+    button:hover{ transform:translateY(-1px); }
+    button:disabled{ opacity:.5; cursor:not-allowed; transform:none; }
+    .btn-primary{
+      background:linear-gradient(180deg,var(--accent),#4fb68a);
+      color:#072012;
+      min-width:160px;
+    }
+    .btn-secondary{
+      background:#1a2d40;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.08);
+    }
+    .bet-wrap{
+      display:flex;
+      align-items:center;
+      gap:10px;
+      padding:12px 14px;
+      background:rgba(255,255,255,.03);
+      border:1px solid rgba(255,255,255,.06);
+      border-radius:16px;
+    }
+    .bet-box{
+      min-width:92px;
+      text-align:center;
+      font-size:22px;
+      font-weight:800;
+    }
+    .log{
+      background:#09131d;
+      border-radius:16px;
+      border:1px solid rgba(255,255,255,.06);
+      padding:12px;
+      min-height:100px;
+      color:var(--muted);
+      line-height:1.45;
+      white-space:pre-line;
+    }
+    .sidebar{
+      display:grid;
+      gap:16px;
+    }
+    .bonus-panel{
+      padding:14px;
+      display:grid;
+      gap:12px;
+    }
+    .bonus-grid{
+      display:grid;
+      grid-template-columns: repeat(5,1fr);
+      gap:8px;
+    }
+    .bonus-cell{
+      aspect-ratio:1/1;
+      border-radius:14px;
+      background:#0a131d;
+      border:1px solid rgba(255,255,255,.06);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      color:var(--muted);
+      position:relative;
+      overflow:hidden;
+      text-align:center;
+      padding:6px;
+      font-size:12px;
+      font-weight:700;
+    }
+    .bonus-cell.t1{ box-shadow: inset 0 0 0 2px rgba(141,106,79,.4); }
+    .bonus-cell.t2{ box-shadow: inset 0 0 0 2px rgba(139,115,85,.5); }
+    .bonus-cell.t3{ box-shadow: inset 0 0 0 2px rgba(168,168,168,.6); }
+    .bonus-cell .tier-badge{
+      position:absolute;
+      top:6px;
+      right:6px;
+      font-size:10px;
+      padding:1px 5px;
+      border-radius:999px;
+      background:rgba(255,255,255,.08);
+      color:#f4f8fb;
+    }
+    .small{
+      color:var(--muted);
+      font-size:13px;
+    }
+    .banner{
+      border-radius:16px;
+      padding:12px 14px;
+      background:rgba(124,226,177,.08);
+      border:1px solid rgba(124,226,177,.15);
+      color:#dff8ea;
+      font-weight:700;
+    }
+    .footer-note{
+      text-align:center;
+      color:var(--muted);
+      font-size:12px;
+      margin-top:4px;
+    }
+    .modal-backdrop{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.58);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:16px;
+      z-index:90;
+    }
+    .modal{
+      width:min(560px, 100%);
+      background:linear-gradient(180deg,var(--panel),var(--panel-2));
+      border:1px solid var(--line);
+      border-radius:20px;
+      box-shadow:var(--shadow);
+      padding:18px;
+      display:grid;
+      gap:14px;
+    }
+    .modal-title{
+      font-size:22px;
+      font-weight:800;
+    }
+    .choice-grid{
+      display:grid;
+      grid-template-columns:repeat(4,1fr);
+      gap:10px;
+    }
+    .choice-btn{
+      background:#132436;
+      color:var(--text);
+      border:1px solid rgba(255,255,255,.08);
+      min-height:48px;
+    }
+    .choice-btn.active{
+      background:linear-gradient(180deg,var(--accent),#4fb68a);
+      color:#072012;
+    }
+    .field{
+      display:grid;
+      gap:8px;
+    }
+    .field input{
+      width:100%;
+      border-radius:12px;
+      border:1px solid rgba(255,255,255,.12);
+      background:#0a131d;
+      color:var(--text);
+      padding:12px 14px;
+      font-size:15px;
+      outline:none;
+    }
+    .autoplay-badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:8px 12px;
+      border-radius:999px;
+      background:rgba(255,215,106,.09);
+      border:1px solid rgba(255,215,106,.18);
+      color:#ffe8a5;
+      font-size:13px;
+      font-weight:700;
+    }
+    @media (max-width: 920px){
+      .layout{ grid-template-columns: 1fr; }
+      .topbar{ grid-template-columns: repeat(2,1fr); }
+    }
+    @media (max-width: 620px){
+      body{ padding:10px; }
+      .reel{ grid-template-rows: repeat(3, 84px); }
+      .title{ font-size:22px; }
+      .topbar{ grid-template-columns: 1fr; }
+      .choice-grid{ grid-template-columns:repeat(2,1fr); }
+    }
+  </style>
 </head>
 <body>
-<div id="root"></div>
+  <div id="root"></div>
 
-<script type="text/babel">
-const SYMBOLS = ["leaf","wood","stone","sap","relic","blade","beast","guardian","wild","scatter"]
+  <script type="text/babel">
+    const ROWS = 3;
+    const COLS = 5;
+    const START_BALANCE = 10000;
+    const BETS = [10, 20, 50, 100, 200, 500];
 
-function getRandom(){return SYMBOLS[Math.floor(Math.random()*SYMBOLS.length)]}
+    const SYMBOLS = {
+      LEAF:     { key: 'leaf',     label: 'Leaf',     kind: 'low',     weight: 18 },
+      WOOD:     { key: 'wood',     label: 'Wood',     kind: 'low',     weight: 18 },
+      STONE:    { key: 'stone',    label: 'Stone',    kind: 'low',     weight: 18 },
+      SAP:      { key: 'sap',      label: 'Sap',      kind: 'low',     weight: 18 },
+      RELIC:    { key: 'relic',    label: 'Relic',    kind: 'premium', weight: 10 },
+      BLADE:    { key: 'blade',    label: 'Blade',    kind: 'premium', weight: 9 },
+      BEAST:    { key: 'beast',    label: 'Beast',    kind: 'premium', weight: 8 },
+      GUARDIAN: { key: 'guardian', label: 'Guardian', kind: 'premium', weight: 7 },
+      WILD:     { key: 'wild',     label: 'Wild',     kind: 'wild',    weight: 5 },
+      SCATTER:  { key: 'scatter',  label: 'Hat',      kind: 'scatter', weight: 4 }
+    };
 
-function generate(){
-  return Array.from({length:3},()=>Array.from({length:5},()=>getRandom()))
-}
+    const ORDERED_SYMBOLS = Object.values(SYMBOLS);
 
-function App(){
-  const [grid,setGrid]=React.useState(generate())
-  const [balance,setBalance]=React.useState(10000)
-  const [bet,setBet]=React.useState(50)
-  const [spinning,setSpinning]=React.useState(false)
-  const [auto,setAuto]=React.useState({active:false,remaining:0})
-  const [open,setOpen]=React.useState(false)
-  const [custom,setCustom]=React.useState("")
+    const PAYTABLE = {
+      leaf:     {3: 0.25, 4: 0.5,  5: 1.0},
+      wood:     {3: 0.25, 4: 0.5,  5: 1.0},
+      stone:    {3: 0.25, 4: 0.5,  5: 1.0},
+      sap:      {3: 0.25, 4: 0.5,  5: 1.0},
+      relic:    {3: 0.5,  4: 1.25, 5: 2.5},
+      blade:    {3: 0.5,  4: 1.5,  5: 3.0},
+      beast:    {3: 0.75, 4: 2.0,  5: 4.0},
+      guardian: {3: 1.0,  4: 3.0,  5: 6.0},
+      wild:     {3: 1.0,  4: 3.5,  5: 7.0}
+    };
 
-  const spin=()=>{
-    if(spinning) return
-    setSpinning(true)
-    setTimeout(()=>{
-      setGrid(generate())
-      setBalance(b=>b-bet+Math.floor(Math.random()*100))
-      setSpinning(false)
-    },500)
-  }
+    const tierName = {1:'Straw',2:'Wood',3:'Brick'};
 
-  React.useEffect(()=>{
-    if(!auto.active || spinning) return
-    if(auto.remaining<=0){
-      setAuto({active:false,remaining:0})
-      return
+    const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
+
+    function cloneGrid(grid){
+      return grid.map(row => row.map(cell => ({...cell})));
     }
-    const t=setTimeout(()=>{
-      spin()
-      setAuto(a=>({...a,remaining:a.remaining-1}))
-    },600)
-    return ()=>clearTimeout(t)
-  },[auto,spinning])
 
-  const startAuto=(spins)=>{
-    if(!spins || spins<=0) return
-    setAuto({active:true,remaining:spins})
-    setOpen(false)
-  }
+    function randomInt(min, max){
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
 
-  return(
-    <div>
-      <h1>Treeverse Slot</h1>
-      <p>Balance: {balance}</p>
-      <p>Bet: {bet}</p>
+    function weightedPick(pool){
+      const total = pool.reduce((sum, item) => sum + item.weight, 0);
+      let r = Math.random() * total;
+      for (const item of pool){
+        r -= item.weight;
+        if (r <= 0) return item;
+      }
+      return pool[pool.length - 1];
+    }
 
-      <div className="grid">
-        {grid.map((row,r)=>row.map((c,i)=>(
-          <div key={r+i} className="cell">{c}</div>
-        )))}
-      </div>
+    function makeSymbol(forceKey = null){
+      const picked = forceKey ? ORDERED_SYMBOLS.find(s => s.key === forceKey) : weightedPick(ORDERED_SYMBOLS);
+      return {
+        key: picked.key,
+        label: picked.label,
+        kind: picked.kind
+      };
+    }
 
-      <button onClick={spin}>{spinning?"...":"Spin"}</button>
-      <button onClick={()=>setOpen(true)}>Auto Play</button>
+    function createEmptyMarks(){
+      return Array.from({length: ROWS}, () => Array.from({length: COLS}, () => false));
+    }
 
-      {auto.active && <p>Auto Spins Left: {auto.remaining}</p>}
+    function createGridBase(){
+      return Array.from({length: ROWS}, () =>
+        Array.from({length: COLS}, () => ({
+          ...makeSymbol()
+        }))
+      );
+    }
 
-      {open && (
-        <div className="modal">
-          <div className="modal-inner">
-            <h3>Select Spins</h3>
-            {[10,20,50,100].map(n=>(
-              <button key={n} onClick={()=>startAuto(n)}>{n}</button>
-            ))}
-            <div>
-              <input value={custom} onChange={e=>setCustom(e.target.value)} placeholder="Custom spins"/>
-              <button onClick={()=>startAuto(parseInt(custom)||0)}>Start</button>
+    function makeBaseSpinGrid(){
+      const grid = createGridBase();
+      const frames = Array.from({length: ROWS}, () => Array.from({length: COLS}, () => Math.random() < 0.23));
+      const scatterPositions = [];
+
+      for (let r = 0; r < ROWS; r++){
+        for (let c = 0; c < COLS; c++){
+          if (frames[r][c] && Math.random() < 0.17){
+            grid[r][c] = makeSymbol('scatter');
+            scatterPositions.push([r, c]);
+          }
+        }
+      }
+
+      return { grid, frames, scatterPositions };
+    }
+
+    function countConsecutiveWays(grid, symbolKey){
+      let ways = 1;
+      let matchedReels = 0;
+
+      for (let c = 0; c < COLS; c++){
+        let count = 0;
+        for (let r = 0; r < ROWS; r++){
+          const cell = grid[r][c];
+          if (cell.key === symbolKey || (cell.key === 'wild' && symbolKey !== 'scatter')){
+            count++;
+          }
+        }
+        if (count === 0) break;
+        ways *= count;
+        matchedReels++;
+      }
+
+      if (matchedReels < 3) return { reels: matchedReels, ways: 0 };
+      return { reels: matchedReels, ways };
+    }
+
+    function evaluateWays(grid, bet){
+      let totalWin = 0;
+      const marks = createEmptyMarks();
+      const entries = [];
+
+      for (const symbolKey of Object.keys(PAYTABLE)){
+        const { reels, ways } = countConsecutiveWays(grid, symbolKey);
+        if (reels >= 3 && ways > 0){
+          const payout = PAYTABLE[symbolKey][Math.min(reels, 5)] || 0;
+          if (payout > 0){
+            const amount = payout * bet * ways;
+            totalWin += amount;
+            entries.push({ symbolKey, reels, ways, amount });
+
+            for (let c = 0; c < reels; c++){
+              for (let r = 0; r < ROWS; r++){
+                const cell = grid[r][c];
+                if (cell.key === symbolKey || (cell.key === 'wild' && symbolKey !== 'scatter')){
+                  marks[r][c] = true;
+                }
+              }
+            }
+          }
+        }
+      }
+
+      return { totalWin, marks, entries };
+    }
+
+    function cascadeGrid(grid, marks){
+      const next = Array.from({length: ROWS}, () => Array.from({length: COLS}, () => null));
+
+      for (let c = 0; c < COLS; c++){
+        const survivors = [];
+        for (let r = ROWS - 1; r >= 0; r--){
+          if (!marks[r][c]){
+            survivors.push({...grid[r][c]});
+          }
+        }
+        while (survivors.length < ROWS){
+          survivors.push({...makeSymbol()});
+        }
+        for (let r = ROWS - 1, i = 0; r >= 0; r--, i++){
+          next[r][c] = survivors[i];
+        }
+      }
+
+      return next;
+    }
+
+    function countScattersOnFrames(grid, frames){
+      let count = 0;
+      const hits = [];
+      for (let r = 0; r < ROWS; r++){
+        for (let c = 0; c < COLS; c++){
+          if (frames[r][c] && grid[r][c].key === 'scatter'){
+            count++;
+            hits.push([r, c]);
+          }
+        }
+      }
+      return { count, hits };
+    }
+
+    function createBonusBoardFromHits(hits){
+      const board = Array.from({length: ROWS}, () => Array.from({length: COLS}, () => 0));
+      hits.forEach(([r, c]) => {
+        board[r][c] = 1;
+      });
+      return board;
+    }
+
+    function countBonusTiles(board){
+      return board.flat().filter(v => v > 0).length;
+    }
+
+    function upgradeRandomExisting(board){
+      const candidates = [];
+      for (let r = 0; r < ROWS; r++){
+        for (let c = 0; c < COLS; c++){
+          if (board[r][c] > 0 && board[r][c] < 3){
+            candidates.push([r, c]);
+          }
+        }
+      }
+      if (!candidates.length) return false;
+      const [r, c] = candidates[randomInt(0, candidates.length - 1)];
+      board[r][c] += 1;
+      return true;
+    }
+
+    function generateBonusSpin(board){
+      const grid = createGridBase();
+      let hatCount = 0;
+
+      for (let r = 0; r < ROWS; r++){
+        for (let c = 0; c < COLS; c++){
+          if (Math.random() < 0.16){
+            grid[r][c] = makeSymbol('scatter');
+          }
+        }
+      }
+
+      const newBoard = board.map(row => [...row]);
+
+      for (let r = 0; r < ROWS; r++){
+        for (let c = 0; c < COLS; c++){
+          if (grid[r][c].key === 'scatter'){
+            hatCount++;
+            if (newBoard[r][c] === 0){
+              newBoard[r][c] = 1;
+            } else {
+              const upgraded = upgradeRandomExisting(newBoard);
+              if (!upgraded && newBoard[r][c] < 3) {
+                newBoard[r][c] += 1;
+              }
+            }
+          }
+        }
+      }
+
+      return { grid, board: newBoard, hatCount };
+    }
+
+    function revealBoard(board, bet){
+      let total = 0;
+      const reveals = Array.from({length: ROWS}, () => Array.from({length: COLS}, () => null));
+
+      for (let r = 0; r < ROWS; r++){
+        for (let c = 0; c < COLS; c++){
+          const tier = board[r][c];
+          if (!tier) continue;
+
+          let multi = 0;
+          if (tier === 1) multi = [0.5, 0.75, 1.0, 1.25][randomInt(0, 3)];
+          if (tier === 2) multi = [1.5, 2, 3, 4, 5][randomInt(0, 4)];
+          if (tier === 3) multi = [5, 8, 10, 15, 20, 30, 50, 75, 100, 180][randomInt(0, 9)];
+
+          const amount = multi * bet;
+          total += amount;
+          reveals[r][c] = { tier, multi, amount };
+        }
+      }
+
+      return { total, reveals };
+    }
+
+    function money(n){
+      return Math.round(n * 100) / 100;
+    }
+
+    function loadSave(){
+      try{
+        const raw = localStorage.getItem('treeverse-slot-save-v2');
+        if (!raw) return null;
+        return JSON.parse(raw);
+      } catch {
+        return null;
+      }
+    }
+
+    function saveState(data){
+      localStorage.setItem('treeverse-slot-save-v2', JSON.stringify(data));
+    }
+
+    function SymbolTile({cell, framed, tier, winning, scatterOnFrame}){
+      const className = [
+        'cell',
+        winning ? 'win' : '',
+        framed ? 'frame' : '',
+        tier ? `tier${tier}` : '',
+        scatterOnFrame ? 'scatter-on-frame' : ''
+      ].filter(Boolean).join(' ');
+
+      return (
+        <div className={className}>
+          <div className={`symbol ${cell.kind}`}>
+            {cell.label}
+          </div>
+          {tier ? <div className="cell-tag">{tierName[tier]}</div> : null}
+        </div>
+      );
+    }
+
+    function App(){
+      const saved = React.useMemo(() => loadSave(), []);
+      const [balance, setBalance] = React.useState(saved?.balance ?? START_BALANCE);
+      const [betIndex, setBetIndex] = React.useState(saved?.betIndex ?? 2);
+      const [grid, setGrid] = React.useState(saved?.grid ?? createGridBase());
+      const [frames, setFrames] = React.useState(saved?.frames ?? Array.from({length: ROWS}, () => Array.from({length: COLS}, () => false)));
+      const [winMarks, setWinMarks] = React.useState(createEmptyMarks());
+      const [lastWin, setLastWin] = React.useState(0);
+      const [message, setMessage] = React.useState('Ready.');
+      const [spinning, setSpinning] = React.useState(false);
+      const [activeReel, setActiveReel] = React.useState(-1);
+      const [scatterOnFrames, setScatterOnFrames] = React.useState(0);
+      const [bonus, setBonus] = React.useState(saved?.bonus ?? {
+        active: false,
+        spinsLeft: 0,
+        board: Array.from({length: ROWS}, () => Array.from({length: COLS}, () => 0)),
+        hatsBanked: 0,
+        reveals: null
+      });
+      const [autoPlayOpen, setAutoPlayOpen] = React.useState(false);
+      const [autoPlaySpinsChoice, setAutoPlaySpinsChoice] = React.useState(10);
+      const [autoPlayCustomSpins, setAutoPlayCustomSpins] = React.useState('');
+      const [autoPlayBetIndexChoice, setAutoPlayBetIndexChoice] = React.useState(saved?.betIndex ?? 2);
+      const [autoPlay, setAutoPlay] = React.useState({
+        active: false,
+        remaining: 0,
+        total: 0
+      });
+
+      const bet = BETS[betIndex];
+
+      React.useEffect(() => {
+        saveState({ balance, betIndex, grid, frames, bonus });
+      }, [balance, betIndex, grid, frames, bonus]);
+
+      async function animateReelsPreview(gridBuilder, frameBuilder = null){
+        for (let c = 0; c < COLS; c++){
+          setActiveReel(c);
+          for (let i = 0; i < 4; i++){
+            setGrid(prev => {
+              const clone = cloneGrid(prev);
+              for (let r = 0; r < ROWS; r++){
+                clone[r][c] = makeSymbol();
+              }
+              return clone;
+            });
+            await sleep(70);
+          }
+          const builtGrid = gridBuilder();
+          setGrid(builtGrid.grid);
+          if (frameBuilder) setFrames(frameBuilder(builtGrid));
+          await sleep(80);
+        }
+        setActiveReel(-1);
+      }
+
+      function stopAutoplay(messageText = 'Autoplay stopped.'){
+        setAutoPlay({ active: false, remaining: 0, total: 0 });
+        setMessage(messageText);
+      }
+
+      function startAutoplay(){
+        const chosenSpins = autoPlaySpinsChoice === 'custom'
+          ? Math.max(1, parseInt(autoPlayCustomSpins || '0', 10) || 0)
+          : autoPlaySpinsChoice;
+        if (!chosenSpins) return;
+        setBetIndex(autoPlayBetIndexChoice);
+        setAutoPlay({
+          active: true,
+          remaining: chosenSpins,
+          total: chosenSpins
+        });
+        setAutoPlayOpen(false);
+        setMessage(`Autoplay started for ${chosenSpins} spins.`);
+      }
+
+      async function runBaseSpin(){
+        if (spinning || bonus.active || balance < bet) return false;
+        const currentBet = bet;
+        setSpinning(true);
+        setLastWin(0);
+        setWinMarks(createEmptyMarks());
+        setMessage('Spinning...');
+        setScatterOnFrames(0);
+        setBalance(v => v - currentBet);
+
+        const initial = makeBaseSpinGrid();
+        await animateReelsPreview(() => initial, result => result.frames);
+
+        let currentGrid = initial.grid.map(row => row.map(cell => ({...cell})));
+        const currentFrames = initial.frames.map(row => [...row]);
+        let totalSpinWin = 0;
+        let cascadeIndex = 0;
+
+        while (true){
+          const { totalWin, marks, entries } = evaluateWays(currentGrid, currentBet);
+          const { count, hits } = countScattersOnFrames(currentGrid, currentFrames);
+          setScatterOnFrames(count);
+
+          if (totalWin <= 0){
+            if (cascadeIndex === 0){
+              setMessage(count > 0 ? `No line win. ${count} hats on frames.` : 'No win.');
+            }
+            if (count >= 6){
+              await sleep(280);
+              const board = createBonusBoardFromHits(hits);
+              setBonus({
+                active: true,
+                spinsLeft: 6,
+                board,
+                hatsBanked: 0,
+                reveals: null
+              });
+              setMessage(`Free Spins triggered with ${count} hats on frames.`);
+            }
+            break;
+          }
+
+          totalSpinWin += totalWin;
+          setLastWin(money(totalSpinWin));
+          setWinMarks(marks);
+          setMessage(
+            `Cascade ${cascadeIndex + 1}: ` +
+            entries.map(e => `${e.symbolKey} x${e.ways} (${e.reels} reels)`).join(', ')
+          );
+          await sleep(650);
+
+          currentGrid = cascadeGrid(currentGrid, marks);
+          setGrid(currentGrid.map(row => row.map(cell => ({...cell}))));
+          setWinMarks(createEmptyMarks());
+          cascadeIndex++;
+          await sleep(320);
+
+          const after = countScattersOnFrames(currentGrid, currentFrames);
+          setScatterOnFrames(after.count);
+          if (after.count >= 6){
+            const board = createBonusBoardFromHits(after.hits);
+            setBonus({
+              active: true,
+              spinsLeft: 6,
+              board,
+              hatsBanked: 0,
+              reveals: null
+            });
+            setMessage(`Free Spins triggered during cascades with ${after.count} hats on frames.`);
+            break;
+          }
+        }
+
+        if (totalSpinWin > 0){
+          setBalance(v => v + money(totalSpinWin));
+        }
+
+        setFrames(currentFrames);
+        setSpinning(false);
+        return true;
+      }
+
+      async function runBonusSpin(){
+        if (spinning || !bonus.active || bonus.spinsLeft <= 0) return false;
+        const currentBet = bet;
+        setSpinning(true);
+        setWinMarks(createEmptyMarks());
+        setLastWin(0);
+        setMessage(`Free Spin. ${bonus.spinsLeft} remaining.`);
+
+        const spinResult = generateBonusSpin(bonus.board);
+        await animateReelsPreview(() => spinResult);
+
+        const nextBoard = spinResult.board;
+        const hats = spinResult.hatCount;
+        let extra = 0;
+        if (hats >= 3){
+          extra = Math.floor(hats / 3);
+        }
+
+        let nextSpins = bonus.spinsLeft - 1 + extra;
+        const hatsBanked = (bonus.hatsBanked || 0) + hats;
+        setFrames(nextBoard.map(row => row.map(t => t > 0)));
+        setScatterOnFrames(hats);
+
+        if (nextSpins <= 0){
+          const reveal = revealBoard(nextBoard, currentBet);
+          setBonus({
+            active: false,
+            spinsLeft: 0,
+            board: nextBoard,
+            hatsBanked,
+            reveals: reveal.reveals
+          });
+          setBalance(v => v + money(reveal.total));
+          setLastWin(money(reveal.total));
+          setMessage(`Bonus complete. Reveal paid ${money(reveal.total)}.`);
+        } else {
+          setBonus({
+            active: true,
+            spinsLeft: nextSpins,
+            board: nextBoard,
+            hatsBanked,
+            reveals: null
+          });
+          setMessage(
+            hats > 0
+              ? `${hats} hats landed. ${extra > 0 ? `+${extra} spin.` : 'No extra spin.'}`
+              : 'No hats landed.'
+          );
+        }
+
+        setSpinning(false);
+        return true;
+      }
+
+      React.useEffect(() => {
+        if (!autoPlay.active || spinning) return;
+
+        let cancelled = false;
+        const timer = setTimeout(async () => {
+          if (cancelled) return;
+
+          if (bonus.active){
+            await runBonusSpin();
+            return;
+          }
+
+          if (autoPlay.remaining <= 0){
+            stopAutoplay('Autoplay complete.');
+            return;
+          }
+
+          if (balance < bet){
+            stopAutoplay('Autoplay stopped. Balance too low for selected bet.');
+            return;
+          }
+
+          const done = await runBaseSpin();
+          if (!done || cancelled) return;
+
+          setAutoPlay(prev => {
+            if (!prev.active) return prev;
+            return {
+              ...prev,
+              remaining: Math.max(0, prev.remaining - 1)
+            };
+          });
+        }, 260);
+
+        return () => {
+          cancelled = true;
+          clearTimeout(timer);
+        };
+      }, [autoPlay, spinning, bonus.active, bonus.spinsLeft, balance, bet]);
+
+      function resetGame(){
+        const freshGrid = createGridBase();
+        setBalance(START_BALANCE);
+        setBetIndex(2);
+        setGrid(freshGrid);
+        setFrames(Array.from({length: ROWS}, () => Array.from({length: COLS}, () => false)));
+        setWinMarks(createEmptyMarks());
+        setLastWin(0);
+        setMessage('Game reset.');
+        setScatterOnFrames(0);
+        setBonus({
+          active: false,
+          spinsLeft: 0,
+          board: Array.from({length: ROWS}, () => Array.from({length: COLS}, () => 0)),
+          hatsBanked: 0,
+          reveals: null
+        });
+        setAutoPlay({ active: false, remaining: 0, total: 0 });
+      }
+
+      const displayedTiers = bonus.active ? bonus.board : Array.from({length: ROWS}, (_, r) =>
+        Array.from({length: COLS}, (_, c) => bonus.board?.[r]?.[c] || 0)
+      );
+
+      return (
+        <div className="app">
+          <div className="topbar">
+            <div className="stat">
+              <div className="label">Balance</div>
+              <div className="value">{money(balance)}</div>
             </div>
-            <button onClick={()=>setOpen(false)}>Close</button>
+            <div className="stat">
+              <div className="label">Bet</div>
+              <div className="value">{bet}</div>
+            </div>
+            <div className="stat">
+              <div className="label">Last Win</div>
+              <div className="value">{money(lastWin)}</div>
+            </div>
+            <div className="stat">
+              <div className="label">{bonus.active ? 'Free Spins Left' : 'Hats On Frames'}</div>
+              <div className="value">{bonus.active ? bonus.spinsLeft : scatterOnFrames}</div>
+            </div>
+          </div>
+
+          <div className="layout">
+            <div className="panel">
+              <div className="machine-header">
+                <div>
+                  <div className="title">Treeverse Slot Prototype</div>
+                  <div className="subtitle">Gameplay-first version. Theme pass comes later.</div>
+                </div>
+                <div style={{display:'flex', gap:'10px', alignItems:'center', flexWrap:'wrap'}}>
+                  {autoPlay.active ? <div className="autoplay-badge">Autoplay {autoPlay.remaining}/{autoPlay.total}</div> : null}
+                  {bonus.active ? <div className="banner">Free Spins Active</div> : null}
+                </div>
+              </div>
+
+              <div className="machine">
+                <div className="reels">
+                  {Array.from({length: COLS}, (_, c) => (
+                    <div key={c} className={`reel ${activeReel === c ? 'spinning' : ''}`}>
+                      {Array.from({length: ROWS}, (_, r) => {
+                        const bonusTier = bonus.active ? bonus.board[r][c] : 0;
+                        const framed = bonus.active ? bonus.board[r][c] > 0 : frames[r][c];
+                        const scatterOnFrameCell = !bonus.active && frames[r][c] && grid[r][c].key === 'scatter';
+                        return (
+                          <SymbolTile
+                            key={`${r}-${c}`}
+                            cell={grid[r][c]}
+                            framed={framed}
+                            tier={bonusTier}
+                            winning={winMarks[r][c]}
+                            scatterOnFrame={scatterOnFrameCell}
+                          />
+                        );
+                      })}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <div className="controls" style={{marginTop:14}}>
+                <div className="bet-wrap">
+                  <div className="label" style={{margin:0}}>Bet</div>
+                  <button className="btn-secondary" disabled={spinning} onClick={() => setBetIndex(i => Math.max(0, i - 1))}>-</button>
+                  <div className="bet-box">{bet}</div>
+                  <button className="btn-secondary" disabled={spinning} onClick={() => setBetIndex(i => Math.min(BETS.length - 1, i + 1))}>+</button>
+                </div>
+
+                <div className="controls-row">
+                  {!bonus.active ? (
+                    <button className="btn-primary" onClick={runBaseSpin} disabled={spinning || balance < bet || autoPlay.active}>
+                      {spinning ? 'Spinning...' : 'Spin'}
+                    </button>
+                  ) : (
+                    <button className="btn-primary" onClick={runBonusSpin} disabled={spinning || autoPlay.active}>
+                      {spinning ? 'Spinning...' : 'Free Spin'}
+                    </button>
+                  )}
+                  {!bonus.active ? (
+                    <button className="btn-secondary" onClick={() => setAutoPlayOpen(true)} disabled={spinning || autoPlay.active}>
+                      Auto Play
+                    </button>
+                  ) : null}
+                  {autoPlay.active ? (
+                    <button className="btn-secondary" onClick={() => stopAutoplay('Autoplay stopped by player.')} disabled={spinning}>
+                      Stop Auto
+                    </button>
+                  ) : null}
+                  <button className="btn-secondary" onClick={resetGame} disabled={spinning}>Reset</button>
+                </div>
+
+                <div className="log">{message}</div>
+              </div>
+            </div>
+
+            <div className="sidebar">
+              <div className="bonus-panel">
+                <div className="title" style={{fontSize:20}}>Bonus Board</div>
+                <div className="small">
+                  In base game, hats only count when they land on framed spots. In free spins, hats create or upgrade house tiers.
+                </div>
+                <div className="bonus-grid">
+                  {displayedTiers.flatMap((row, r) =>
+                    row.map((tier, c) => {
+                      const reveal = bonus.reveals?.[r]?.[c];
+                      return (
+                        <div
+                          key={`b-${r}-${c}`}
+                          className={`bonus-cell ${tier ? `t${tier}` : ''}`}
+                        >
+                          {tier ? (
+                            <>
+                              <div>{reveal ? `${reveal.multi}x` : tierName[tier]}</div>
+                              <div className="tier-badge">T{tier}</div>
+                            </>
+                          ) : 'Empty'}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+                <div className="small">
+                  Tier 1 reveal: 0.5x to 1.25x bet<br />
+                  Tier 2 reveal: 1.5x to 5x bet<br />
+                  Tier 3 reveal: 5x to 180x bet
+                </div>
+              </div>
+
+              <div className="bonus-panel">
+                <div className="title" style={{fontSize:20}}>Current Rules In This Version</div>
+                <div className="small">
+                  5x3 grid. 243 ways. Cascades after wins. Frames persist through cascades in the same paid spin.
+                  6 hats on frames triggers free spins. Free spins start at 6.
+                  Every 3 hats during free spins gives +1 extra spin.
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {autoPlayOpen ? (
+            <div className="modal-backdrop" onClick={() => setAutoPlayOpen(false)}>
+              <div className="modal" onClick={(e) => e.stopPropagation()}>
+                <div className="modal-title">Auto Play</div>
+
+                <div className="field">
+                  <div className="label" style={{margin:0}}>Number of Spins</div>
+                  <div className="choice-grid">
+                    {[10, 20, 50, 100].map(n => (
+                      <button
+                        key={n}
+                        className={`choice-btn ${autoPlaySpinsChoice === n ? 'active' : ''}`}
+                        onClick={() => setAutoPlaySpinsChoice(n)}
+                      >
+                        {n}
+                      </button>
+                    ))}
+                  </div>
+                  <button
+                    className={`choice-btn ${autoPlaySpinsChoice === 'custom' ? 'active' : ''}`}
+                    onClick={() => setAutoPlaySpinsChoice('custom')}
+                  >
+                    Custom
+                  </button>
+                  {autoPlaySpinsChoice === 'custom' ? (
+                    <input
+                      type="number"
+                      min="1"
+                      step="1"
+                      placeholder="Enter exact number of spins"
+                      value={autoPlayCustomSpins}
+                      onChange={(e) => setAutoPlayCustomSpins(e.target.value)}
+                    />
+                  ) : null}
+                </div>
+
+                <div className="field">
+                  <div className="label" style={{margin:0}}>Bet Amount</div>
+                  <div className="choice-grid">
+                    {BETS.map((amount, idx) => (
+                      <button
+                        key={amount}
+                        className={`choice-btn ${autoPlayBetIndexChoice === idx ? 'active' : ''}`}
+                        onClick={() => setAutoPlayBetIndexChoice(idx)}
+                      >
+                        {amount}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="controls-row" style={{justifyContent:'flex-end'}}>
+                  <button className="btn-secondary" onClick={() => setAutoPlayOpen(false)}>Cancel</button>
+                  <button
+                    className="btn-primary"
+                    onClick={startAutoplay}
+                    disabled={autoPlaySpinsChoice === 'custom' && !(parseInt(autoPlayCustomSpins || '0', 10) > 0)}
+                  >
+                    Start Auto Play
+                  </button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          <div className="footer-note">
+            Fake currency only. Prototype gameplay version for local testing.
           </div>
         </div>
-      )}
-    </div>
-  )
-}
+      );
+    }
 
-ReactDOM.createRoot(document.getElementById("root")).render(<App/>)
-</script>
+    ReactDOM.createRoot(document.getElementById('root')).render(<App />);
+  </script>
 </body>
 </html>
