@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Treeverse Slot Prototype</title>
-  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=-C_0ZOiM8dd7dQw_uEgPCGk1CKAnrTALMENdWKyRT1I5eoXeOs_EW6SspalAbNDkCq37othUasqIsk0AwFt-JiUx6UpPAbhaNn1jie4V51HFt4AHxommD0wryxV5uEHF1xXDIejXqhxr6-mWajXczDFQrSYTc_gqEjfGqMu85KqjYvk3nPOsp8Ih4yjUdoMfPIefo6zErzzeKlxF8NKrW5o4WVMf93lHPWId7od-EOlIfWPqdo7oN-bDs1G74oGljkEZuQ7oYdhbKcScginPrw" charset="UTF-8"></script><script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=_B2VOx9fc701U224IZdpeYX7CC573WIt3cd3akidUEc_gqB_cJUdJec3KBnnudW08ZqoTZ2DbWLRaKBk197CWPYhv21zu1mm5HvKZQ7gY90hLFShxR0P3eoDGMTl2PVOyjlrLhzSHjLGF90_6oRVwv-vPL-c7VTcPxcb22EvKTdg8FdFSJpsHEDbx-UZVDduTR4KMeQbSsxvdvOfpug1O7h6V9bSqaj9_dvR23HR5vdBos5U1Vib67AgLBtjDs15M1mWiE_ogo-_CBXswDLHGg" charset="UTF-8"></script><script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
@@ -709,206 +709,25 @@
       });
 
       const bet = BETS[betIndex];
-
-      React.useEffect(() => {
-        saveState({ balance, betIndex, grid, frames, bonus });
-      }, [balance, betIndex, grid, frames, bonus]);
-
-      async function animateReelsPreview(gridBuilder, frameBuilder = null){
-        for (let c = 0; c < COLS; c++){
-          setActiveReel(c);
-          for (let i = 0; i < 4; i++){
-            setGrid(prev => {
-              const clone = cloneGrid(prev);
-              for (let r = 0; r < ROWS; r++){
-                clone[r][c] = makeSymbol();
-              }
-              return clone;
-            });
-            await sleep(70);
-          }
-          const builtGrid = gridBuilder();
-          setGrid(builtGrid.grid);
-          if (frameBuilder) setFrames(frameBuilder(builtGrid));
-          await sleep(80);
-        }
-        setActiveReel(-1);
-      }
-
-      function stopAutoplay(messageText = 'Autoplay stopped.'){
-        setAutoPlay({ active: false, remaining: 0, total: 0 });
-        setMessage(messageText);
-      }
-
-      function startAutoplay(){
-        const chosenSpins = autoPlaySpinsChoice === 'custom'
-          ? Math.max(1, parseInt(autoPlayCustomSpins || '0', 10) || 0)
-          : autoPlaySpinsChoice;
-        if (!chosenSpins) return;
-        setBetIndex(autoPlayBetIndexChoice);
-        setAutoPlay({
-          active: true,
-          remaining: chosenSpins,
-          total: chosenSpins
-        });
-        setAutoPlayOpen(false);
-        setMessage(`Autoplay started for ${chosenSpins} spins.`);
-      }
-
-      async function runBaseSpin(){
-        if (spinning || bonus.active || balance < bet) return false;
-        const currentBet = bet;
-        setSpinning(true);
-        setLastWin(0);
-        setWinMarks(createEmptyMarks());
-        setMessage('Spinning...');
-        setScatterOnFrames(0);
-        setBalance(v => v - currentBet);
-
-        const initial = makeBaseSpinGrid();
-        await animateReelsPreview(() => initial, result => result.frames);
-
-        let currentGrid = initial.grid.map(row => row.map(cell => ({...cell})));
-        const currentFrames = initial.frames.map(row => [...row]);
-        let totalSpinWin = 0;
-        let cascadeIndex = 0;
-
-        while (true){
-          const { totalWin, marks, entries } = evaluateWays(currentGrid, currentBet);
-          const { count, hits } = countScattersOnFrames(currentGrid, currentFrames);
-          setScatterOnFrames(count);
-
-          if (totalWin <= 0){
-            if (cascadeIndex === 0){
-              setMessage(count > 0 ? `No line win. ${count} hats on frames.` : 'No win.');
-            }
-            if (count >= 6){
-              await sleep(280);
-              const board = createBonusBoardFromHits(hits);
-              setBonus({
-                active: true,
-                spinsLeft: 6,
-                board,
-                hatsBanked: 0,
-                reveals: null
-              });
-              setMessage(`Free Spins triggered with ${count} hats on frames.`);
-            }
-            break;
-          }
-
-          totalSpinWin += totalWin;
-          setLastWin(money(totalSpinWin));
-          setWinMarks(marks);
-          setMessage(
-            `Cascade ${cascadeIndex + 1}: ` +
-            entries.map(e => `${e.symbolKey} x${e.ways} (${e.reels} reels)`).join(', ')
-          );
-          await sleep(650);
-
-          currentGrid = cascadeGrid(currentGrid, marks);
-          setGrid(currentGrid.map(row => row.map(cell => ({...cell}))));
-          setWinMarks(createEmptyMarks());
-          cascadeIndex++;
-          await sleep(320);
-
-          const after = countScattersOnFrames(currentGrid, currentFrames);
-          setScatterOnFrames(after.count);
-          if (after.count >= 6){
-            const board = createBonusBoardFromHits(after.hits);
-            setBonus({
-              active: true,
-              spinsLeft: 6,
-              board,
-              hatsBanked: 0,
-              reveals: null
-            });
-            setMessage(`Free Spins triggered during cascades with ${after.count} hats on frames.`);
-            break;
-          }
-        }
-
-        if (totalSpinWin > 0){
-          setBalance(v => v + money(totalSpinWin));
-        }
-
-        setFrames(currentFrames);
-        setSpinning(false);
-        return true;
-      }
-
-      async function runBonusSpin(){
-        if (spinning || !bonus.active || bonus.spinsLeft <= 0) return false;
-        const currentBet = bet;
-        setSpinning(true);
-        setWinMarks(createEmptyMarks());
-        setLastWin(0);
-        setMessage(`Free Spin. ${bonus.spinsLeft} remaining.`);
-
-        const spinResult = generateBonusSpin(bonus.board);
-        await animateReelsPreview(() => spinResult);
-
-        const nextBoard = spinResult.board;
-        const hats = spinResult.hatCount;
-        let extra = 0;
-        if (hats >= 3){
-          extra = Math.floor(hats / 3);
-        }
-
-        let nextSpins = bonus.spinsLeft - 1 + extra;
-        const hatsBanked = (bonus.hatsBanked || 0) + hats;
-        setFrames(nextBoard.map(row => row.map(t => t > 0)));
-        setScatterOnFrames(hats);
-
-        if (nextSpins <= 0){
-          const reveal = revealBoard(nextBoard, currentBet);
-          setBonus({
-            active: false,
-            spinsLeft: 0,
-            board: nextBoard,
-            hatsBanked,
-            reveals: reveal.reveals
-          });
-          setBalance(v => v + money(reveal.total));
-          setLastWin(money(reveal.total));
-          setMessage(`Bonus complete. Reveal paid ${money(reveal.total)}.`);
-        } else {
-          setBonus({
-            active: true,
-            spinsLeft: nextSpins,
-            board: nextBoard,
-            hatsBanked,
-            reveals: null
-          });
-          setMessage(
-            hats > 0
-              ? `${hats} hats landed. ${extra > 0 ? `+${extra} spin.` : 'No extra spin.'}`
-              : 'No hats landed.'
-          );
-        }
-
-        setSpinning(false);
-        return true;
-      }
-
       React.useEffect(() => {
         if (!autoPlay.active || spinning) return;
 
         let cancelled = false;
+
         const timer = setTimeout(async () => {
           if (cancelled) return;
 
-          if (bonus.active){
+          if (bonus.active) {
             await runBonusSpin();
             return;
           }
 
-          if (autoPlay.remaining <= 0){
+          if (autoPlay.remaining <= 0) {
             stopAutoplay('Autoplay complete.');
             return;
           }
 
-          if (balance < bet){
+          if (balance < bet) {
             stopAutoplay('Autoplay stopped. Balance too low for selected bet.');
             return;
           }
@@ -918,9 +737,10 @@
 
           setAutoPlay(prev => {
             if (!prev.active) return prev;
+            const nextRemaining = Math.max(0, prev.remaining - 1);
             return {
               ...prev,
-              remaining: Math.max(0, prev.remaining - 1)
+              remaining: nextRemaining
             };
           });
         }, 260);
@@ -929,7 +749,8 @@
           cancelled = true;
           clearTimeout(timer);
         };
-      }, [autoPlay, spinning, bonus.active, bonus.spinsLeft, balance, bet]);
+      }, [autoPlay.active, autoPlay.remaining, spinning, bonus.active, bonus.spinsLeft, balance, bet]);
+
 
       function resetGame(){
         const freshGrid = createGridBase();
